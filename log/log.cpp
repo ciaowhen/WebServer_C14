@@ -25,9 +25,9 @@ Log::~Log()
 {
     if(m_write_thread && m_write_thread->joinable())
     {
-        while(!m_block_deque->empty())
+        while(!m_block_deque->Empty())
         {
-            m_block_deque->flush();
+            m_block_deque->Flush();
         }
 
         m_block_deque->Close();
@@ -61,10 +61,10 @@ void Log::Init(int level, const char *path, const char *suffix, int max_queue_ca
         m_is_async = true;
         if(!m_block_deque)
         {
-            std::unique_ptr<BlockDeque<std::string>> new_deque = new BlockDeque<std::string>;
+            std::unique_ptr<BlockQueue<std::string>> new_deque(new BlockQueue<std::string>);
             m_block_deque = move(new_deque);
 
-            std::unique_ptr<std::thread> new_thread = new std::thread(FlushLogThread);
+            std::unique_ptr<std::thread> new_thread(new std::thread(FlushLogThread));
             m_write_thread = move(new_thread);
         }
     }
@@ -146,21 +146,21 @@ void Log::Write(int level, const char *format, ...)
     {
         std::unique_lock<std::mutex> locker(m_mutex);
         m_line_count++;
-        int n = snprintf();
+        int n = snprintf(m_buff.BeginWrite(), 128, "%d-%02d-%02d %02d:%02d:%02d.%06ld ", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, now.tv_usec);
+        m_buff.GetHasWritten(n);
 
         AppendLogLevelTitle(level);
         va_start(v_list,format);
-        int m = vsnprintf();
-
+        int m = vsnprintf(m_buff.BeginWrite(), m_buff.GetWritableBytes(), format, v_list);
         va_end(v_list);
 
-        if(m_is_async && m_block_deque && !m_block_deque->full())
+        if(m_is_async && m_block_deque && !m_block_deque->Full())
         {
-            m_block_deque->push_back(m_buff.RetrieveAllToStr());
+            m_block_deque->PushBack(m_buff.RetrieveAllToStr());
         }
         else
         {
-            fputs(m_buff.GetCur(), m_file_ptr);
+            fputs(m_buff.GetCurReadPosPtr(), m_file_ptr);
         }
 
         m_buff.RetrieveAll();
@@ -172,19 +172,19 @@ void Log::AppendLogLevelTitle(int level)
     switch (level)
     {
         case LL_DEBUG:
-            m_buff.Append("[debug]: ", 9);
+            m_buff.Append("[Debug]: ", 9);
             break;
         case LL_INFO:
-            m_buff.Append("[info]: ", 9);
+            m_buff.Append("[Info]: ", 9);
             break;
         case LL_WARN:
-            m_buff.Append("[warn]: ", 9);
+            m_buff.Append("[Warn]: ", 9);
             break;
         case LL_ERROR:
-            m_buff.Append("[error]: ", 9);
+            m_buff.Append("[Error]: ", 9);
             break;
         default:
-            m_buff.Append("[info]: ", 9);
+            m_buff.Append("[Info]: ", 9);
             break;
     }
 }
@@ -193,7 +193,7 @@ void Log::Flush()
 {
     if(m_is_async)
     {
-        m_block_deque->flush();
+        m_block_deque->Flush();
     }
 
     fflush(m_file_ptr);
@@ -202,7 +202,7 @@ void Log::Flush()
 void Log::AsyncWrite()
 {
     std::string str = "";
-    while (m_block_deque->pop(str))
+    while (m_block_deque->Pop(str))
     {
         std::lock_guard<std::mutex> locker(m_mutex);
         fputs(str.c_str(), m_file_ptr);
