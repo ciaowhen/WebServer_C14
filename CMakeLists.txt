@@ -3,4 +3,4 @@ project(GraduateDesign)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(GraduateDesign main.cpp log.h)
+add_executable(GraduateDesign main.cpp log/log.h log/log.cpp pool/threadpool.h)
