@@ -37,13 +37,13 @@ public:
     HeapTimer() {}
     ~HeapTimer(){}
 
-    void OnAdjust(int id, int timeout);
     void OnAdd(int id, int time_out, const TimeOutCallBack& cb);
     void OnDel(size_t index);
+    void OnAdjust(int id, int timeout);
     void OnDoWork(int id);
-    void OnClear();
     void OnTick();          //清除超时节点
     void OnPop();
+    void OnClear();
     int GetNextTick();      //下个定时器触发的时间
 
 private:

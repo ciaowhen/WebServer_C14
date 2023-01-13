@@ -4,58 +4,6 @@
 
 #include "heaptimer.h"
 
-void HeapTimer::SiftUp(size_t i)
-{
-    assert(i >= 0 && i < m_timer_heap.size());
-    size_t j = (i - 1) / 2;
-    while(j >= 0)
-    {
-        if (m_timer_heap[j] < m_timer_heap[i])
-        {
-            break;
-        }
-
-        SwapNode(i, j);
-        i = j;
-        j = (i - 1) / 2;
-    }
-}
-
-bool HeapTimer::SiftDown(size_t index, size_t n)
-{
-    assert(index >= 0 && index < m_timer_heap.size());
-    assert(n >= 0 && n <= m_timer_heap.size());
-    size_t i = index;
-    size_t j = i * 2 + 1;
-    while (j < n)
-    {
-        if(j + 1 < n && m_timer_heap[j + 1] < m_timer_heap[j])
-        {
-            ++j;
-        }
-
-        if(m_timer_heap[i] < m_timer_heap[j])
-        {
-            break;
-        }
-
-        SwapNode(i, j);
-        i = j;
-        j = i * 2 + 1;
-    }
-
-    return i > index;
-}
-
-void HeapTimer::SwapNode(size_t i, size_t j)
-{
-    assert(i >= 0 && i < m_timer_heap.size());
-    assert(j >= 0 && j < m_timer_heap.size());
-    std::swap(m_timer_heap[i], m_timer_heap[j]);
-    m_ref[m_timer_heap[i].id] = i;
-    m_ref[m_timer_heap[j].id] = j;
-}
-
 void HeapTimer::OnAdd(int id, int time_out, const TimeOutCallBack &cb)
 {
     assert(id >= 0);
@@ -162,4 +110,56 @@ int HeapTimer::GetNextTick()
     }
 
     return res;
+}
+
+void HeapTimer::SiftUp(size_t i)
+{
+    assert(i >= 0 && i < m_timer_heap.size());
+    size_t j = (i - 1) / 2;
+    while(j >= 0)
+    {
+        if (m_timer_heap[j] < m_timer_heap[i])
+        {
+            break;
+        }
+
+        SwapNode(i, j);
+        i = j;
+        j = (i - 1) / 2;
+    }
+}
+
+bool HeapTimer::SiftDown(size_t index, size_t n)
+{
+    assert(index >= 0 && index < m_timer_heap.size());
+    assert(n >= 0 && n <= m_timer_heap.size());
+    size_t i = index;
+    size_t j = i * 2 + 1;
+    while (j < n)
+    {
+        if(j + 1 < n && m_timer_heap[j + 1] < m_timer_heap[j])
+        {
+            ++j;
+        }
+
+        if(m_timer_heap[i] < m_timer_heap[j])
+        {
+            break;
+        }
+
+        SwapNode(i, j);
+        i = j;
+        j = i * 2 + 1;
+    }
+
+    return i > index;
+}
+
+void HeapTimer::SwapNode(size_t i, size_t j)
+{
+    assert(i >= 0 && i < m_timer_heap.size());
+    assert(j >= 0 && j < m_timer_heap.size());
+    std::swap(m_timer_heap[i], m_timer_heap[j]);
+    m_ref[m_timer_heap[i].id] = i;
+    m_ref[m_timer_heap[j].id] = j;
 }
