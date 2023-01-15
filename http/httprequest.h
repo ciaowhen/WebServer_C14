@@ -46,10 +46,10 @@ public:
     void Init();
     bool Parse(Buffer& buffer);
 
-    std::string GetPath() const;
-    std::string& GetPath();
-    std::string Method() const;
-    std::string Version() const;
+    std::string GetPath() const {return m_path;}
+    std::string& GetPath() {return m_path;}
+    std::string Method() const {return m_method;}
+    std::string Version() const {return m_version;}
     std::string GetPost(const std::string& key) const;
     std::string GetPost(const char* key) const;
     bool IsKeepAlive() const;
