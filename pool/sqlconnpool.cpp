@@ -9,7 +9,6 @@ SqlConnPool::SqlConnPool()
     m_max_conn_count = 0;
     m_use_count = 0;
     m_free_count = 0;
-    m_conn_queue.clear();
 }
 
 SqlConnPool::~SqlConnPool()
@@ -50,7 +49,7 @@ void SqlConnPool::Init(const char *host, int port, const char *user, const char 
     sem_init(&m_sem_id, 0, m_max_conn_count);
 }
 
-MQSQL *SqlConnPool::GetConn()
+MYSQL *SqlConnPool::GetConn()
 {
     MYSQL *sql = nullptr;
     if(m_conn_queue.empty())
