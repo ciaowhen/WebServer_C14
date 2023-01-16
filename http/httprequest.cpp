@@ -320,9 +320,10 @@ bool HttpRequest::UserVerify(const std::string &name, const std::string &pwd, bo
 std::string HttpRequest::GetPost(const char *key) const
 {
     assert(key != nullptr);
-    if(m_post.find(key) != m_post.end())
+    auto iterator = m_post.find(key);
+    if(iterator != m_post.end())
     {
-        return m_post.find(key)->second;
+        return iterator->second;
     }
 
     return "";
@@ -331,10 +332,10 @@ std::string HttpRequest::GetPost(const char *key) const
 std::string HttpRequest::GetPost(const std::string &key) const
 {
     assert(key != "");
-    std::iterator<std::string, std::string> result;
-    if(m_post.find(key) != m_post.end())
+    auto iterator = m_post.find(key);
+    if(iterator != m_post.end())
     {
-        return m_post.find(key)->second;
+        return iterator->second;
     }
 
     return "";
